@@ -132,6 +132,40 @@ def update(win, snake):
     pygame.display.update()
 
 
+def mainMenu(win):
+    run = True
+    selectedOption = "Play"
+    selectionColor = (255, 150, 150)
+    playText = font.render('Play', 1, selectionColor)
+    quitText = font.render('Quit', 1, (255, 255, 255))
+    while run:
+
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_UP]:
+            selectedOption = "Play"
+            playText = font.render('Play', 1, selectionColor)
+            quitText = font.render('Quit', 1, (255, 255, 255))
+        if keys[pygame.K_DOWN]:
+            selectedOption = "Quit"
+            quitText = font.render('Quit', 1, selectionColor)
+            playText = font.render('Play', 1, (255, 255, 255))
+        if keys[pygame.K_SPACE]:
+            if selectedOption == "Quit":
+                return False
+            else:
+                return True
+
+        win.fill((0, 0, 0))
+        win.blit(playText, (round(windowSizeX / 2), 10))
+        win.blit(quitText, (round(windowSizeX / 2), 90))
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+
+
 snake = Snake(xstartPoint, ystartPoint)
 apple = Apple()
 appleExists = False
@@ -159,6 +193,10 @@ while run:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            run = False
+
+    if keys[pygame.K_ESCAPE]:
+        if not mainMenu(win):
             run = False
 
     if run:
