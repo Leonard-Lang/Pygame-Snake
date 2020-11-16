@@ -24,6 +24,8 @@ win = pygame.display.set_mode((windowSizeX, windowSizeY + scoreboardSize))
 xstartPoint = - boxWidth
 ystartPoint = scoreboardSize
 
+font = pygame.font.SysFont('kievitoffcpro', round(scoreboardSize / 2), True)
+
 
 class Snake(object):
     def __init__(self, x, y):
@@ -34,10 +36,11 @@ class Snake(object):
         self.length = 1
         self.newDirection = "right"
         self.currentDirection = "right"
+        self.score = 0
 
     def draw(self, win):
         for i in range(snake.length):
-            pygame.draw.rect(win, (0, 255, 0), (self.bodyx[i], self.bodyy[i], boxWidth, boxHeight))
+            pygame.draw.rect(win, (0, 0, 150), (self.bodyx[i], self.bodyy[i], boxWidth, boxHeight))
 
     def move(self, keys):
         if keys[pygame.K_LEFT]:
@@ -111,8 +114,8 @@ class Apple(object):
             pygame.draw.rect(win, (255, 0, 0), (self.x, self.y, boxWidth, boxHeight))
 
 
-def update(win):
-    win.fill((0, 0, 0))
+def update(win, snake):
+    win.fill((0, 150, 0))
 
     snake.draw(win)
     apple.draw(win)
@@ -122,6 +125,9 @@ def update(win):
 
     for j in range(numberOfRows):
         pygame.draw.rect(win, (255, 255, 255), (0, boxHeight * j + scoreboardSize, windowSizeY, 1))
+
+    text = font.render('Score: ' + str(snake.score), 1, (0, 0, 0))
+    win.blit(text, (0, round(scoreboardSize / 5)))
 
     pygame.display.update()
 
@@ -149,13 +155,15 @@ while run:
         snake.bodyx.append(apple.x)
         snake.bodyy.append(apple.y)
         snake.length += 1
+        snake.score += 100
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
 
     if run:
-        update(win)
+        snake.score += 1
+        update(win, snake)
 
     pygame.time.delay(300)
 
