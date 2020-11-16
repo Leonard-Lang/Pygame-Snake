@@ -7,12 +7,22 @@ pygame.init()
 
 pygame.display.set_caption("Pygame Snake")
 
-numberOfRows = 10
-numberOfColumns = 10
+numberOfRows = 20
+numberOfColumns = 20
 numberOfTiles = numberOfRows * numberOfColumns
 
-width = 50
-height = 50
+boxWidth = 25
+boxHeight = 25
+
+windowSizeX = numberOfColumns * boxWidth
+windowSizeY = numberOfRows * boxHeight
+
+scoreboardSize = 50
+
+win = pygame.display.set_mode((windowSizeX, windowSizeY + scoreboardSize))
+
+xstartPoint = - boxWidth
+ystartPoint = scoreboardSize
 
 
 class Snake(object):
@@ -27,7 +37,7 @@ class Snake(object):
 
     def draw(self, win):
         for i in range(snake.length):
-            pygame.draw.rect(win, (0, 255, 0), (self.bodyx[i], self.bodyy[i], width, height))
+            pygame.draw.rect(win, (0, 255, 0), (self.bodyx[i], self.bodyy[i], boxWidth, boxHeight))
 
     def move(self, keys):
         if keys[pygame.K_LEFT]:
@@ -56,18 +66,18 @@ class Snake(object):
             snake.bodyy[i] = snake.bodyy[i-1]
 
         if snake.currentDirection == "left":
-            snake.bodyx[0] -= 50
+            snake.bodyx[0] -= boxWidth
         elif snake.currentDirection == "right":
-            snake.bodyx[0] += 50
+            snake.bodyx[0] += boxWidth
         elif snake.currentDirection == "up":
-            snake.bodyy[0] -= 50
+            snake.bodyy[0] -= boxHeight
         elif snake.currentDirection == "down":
-            snake.bodyy[0] += 50
+            snake.bodyy[0] += boxHeight
 
     # Check if snakes path is blocked
     def isBlocked(self):
         # Check if snake is in the gamefield
-        if snake.bodyx[0] < 0 or snake.bodyx[0] >= 500 or snake.bodyy[0] < 0 or snake.bodyy[0] >= 500:
+        if snake.bodyx[0] < 0 or snake.bodyx[0] >= windowSizeX or snake.bodyy[0] < 0 + scoreboardSize or snake.bodyy[0] >= windowSizeY + scoreboardSize:
             return False
 
         # Check if snake eats itself
@@ -89,8 +99,8 @@ class Apple(object):
         possible = False
         while not possible:
             possible = True
-            self.x = randint(0, 9) * 50
-            self.y = randint(0, 9) * 50
+            self.x = randint(0, numberOfColumns - 1) * boxWidth
+            self.y = randint(0, numberOfRows - 1) * boxHeight + scoreboardSize
 
             for i in range(snake.length):
                 if snake.bodyx[i] == self.x and snake.bodyy[i] == self.y:
@@ -98,7 +108,7 @@ class Apple(object):
 
     def draw(self, win):
         if self.exists:
-            pygame.draw.rect(win, (255, 0, 0), (self.x, self.y, width, height))
+            pygame.draw.rect(win, (255, 0, 0), (self.x, self.y, boxWidth, boxHeight))
 
 
 def update(win):
@@ -108,18 +118,13 @@ def update(win):
     apple.draw(win)
 
     for i in range(numberOfColumns):
-        pygame.draw.rect(win, (255, 255, 255), (50 * i, 0, 1, 500))
+        pygame.draw.rect(win, (255, 255, 255), (boxWidth * i, scoreboardSize, 1, windowSizeX))
 
     for j in range(numberOfRows):
-        pygame.draw.rect(win, (255, 255, 255), (0, 50 * j, 500, 1))
+        pygame.draw.rect(win, (255, 255, 255), (0, boxHeight * j + scoreboardSize, windowSizeY, 1))
 
     pygame.display.update()
 
-
-win = pygame.display.set_mode((500, 500))
-
-xstartPoint = 0
-ystartPoint = 0
 
 snake = Snake(xstartPoint, ystartPoint)
 apple = Apple()
@@ -127,12 +132,6 @@ appleExists = False
 
 run = True
 while run:
-    pygame.time.delay(100)
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-
     keys = pygame.key.get_pressed()
 
     snake.move(keys)
@@ -151,7 +150,12 @@ while run:
         snake.bodyy.append(apple.y)
         snake.length += 1
 
-    update(win)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+
+    if run:
+        update(win)
 
     pygame.time.delay(300)
 
