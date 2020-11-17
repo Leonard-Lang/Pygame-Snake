@@ -7,12 +7,12 @@ pygame.init()
 
 pygame.display.set_caption("Pygame Snake")
 
-numberOfRows = 20
-numberOfColumns = 20
+numberOfRows = 10
+numberOfColumns = 10
 numberOfTiles = numberOfRows * numberOfColumns
 
-boxWidth = 25
-boxHeight = 25
+boxWidth = 50
+boxHeight = 50
 
 windowSizeX = numberOfColumns * boxWidth
 windowSizeY = numberOfRows * boxHeight
@@ -137,28 +137,49 @@ def mainMenu(win):
     selectedOption = "Play"
     selectionColor = (255, 150, 150)
     playText = font.render('Play', 1, selectionColor)
+    highscoreText = font.render('Highscore', 1, (255, 255, 255))
     quitText = font.render('Quit', 1, (255, 255, 255))
     while run:
 
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_UP]:
-            selectedOption = "Play"
-            playText = font.render('Play', 1, selectionColor)
-            quitText = font.render('Quit', 1, (255, 255, 255))
+            if selectedOption == "Quit":
+                selectedOption = "Highscore"
+                playText = font.render('Play', 1, (255, 255, 255))
+                highscoreText = font.render('Highscore', 1, selectionColor)
+                quitText = font.render('Quit', 1, (255, 255, 255))
+            elif selectedOption == "Highscore":
+                selectedOption = "Play"
+                playText = font.render('Play', 1, selectionColor)
+                highscoreText = font.render('Highscore', 1, (255, 255, 255))
+                quitText = font.render('Quit', 1, (255, 255, 255))
         if keys[pygame.K_DOWN]:
-            selectedOption = "Quit"
-            quitText = font.render('Quit', 1, selectionColor)
-            playText = font.render('Play', 1, (255, 255, 255))
+            if selectedOption == "Highscore":
+                selectedOption = "Quit"
+                quitText = font.render('Quit', 1, selectionColor)
+                highscoreText = font.render('Highscore', 1, (255, 255, 255))
+                playText = font.render('Play', 1, (255, 255, 255))
+            if selectedOption == "Play":
+                selectedOption = "Highscore"
+                quitText = font.render('Quit', 1, (255, 255, 255))
+                highscoreText = font.render('Highscore', 1, selectionColor)
+                playText = font.render('Play', 1, (255, 255, 255))
+
+        pygame.time.delay(100)
+
         if keys[pygame.K_SPACE]:
             if selectedOption == "Quit":
                 return False
-            else:
+            elif selectedOption == "Play":
                 return True
+            else:
+                showHighscoreList()
 
         win.fill((0, 0, 0))
         win.blit(playText, (round(windowSizeX / 2), 10))
-        win.blit(quitText, (round(windowSizeX / 2), 90))
+        win.blit(highscoreText, (round(windowSizeX / 2), 90))
+        win.blit(quitText, (round(windowSizeX / 2), 170))
         pygame.display.update()
 
         for event in pygame.event.get():
@@ -166,11 +187,81 @@ def mainMenu(win):
                 run = False
 
 
+def showHighscoreList():
+
+    run = True
+
+    file1 = open('highscores.txt', 'r')
+    lines = file1.readlines()
+
+    firstRecord = lines[0].split('#')
+    secondRecord = lines[1].split('#')
+    thirdRecord = lines[2].split('#')
+
+    file1.close()
+
+    file1 = open('highscores.txt', 'r')
+    lines2 = file1.readlines()
+    file1.close()
+
+    print(lines2)
+
+    win.fill((0, 0, 155))
+
+    firstPlaceText = font.render("1. " + firstRecord[0] + " " + firstRecord[1][:-1] + "p", 1, (255, 255, 255))
+    secondPlaceText = font.render("2. " + secondRecord[0] + " " + secondRecord[1][:-1] + "p", 1, (255, 255, 255))
+    thirdPlaceText = font.render("3. " + thirdRecord[0] + " " + thirdRecord[1] + "p", 1, (255, 255, 255))
+
+    win.blit(firstPlaceText, (round(windowSizeX / 2), 10))
+    win.blit(secondPlaceText, (round(windowSizeX / 2), 90))
+    win.blit(thirdPlaceText, (round(windowSizeX / 2), 170))
+
+    pygame.display.update()
+
+    while run:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+
+
+def updateHighscoreList(name, score):
+    file1 = open('highscores.txt', 'r')
+    lines = file1.readlines()
+    file1.close()
+
+    firstRecord = lines[0].split('#')
+    secondRecord = lines[1].split('#')
+    thirdRecord = lines[2].split('#')
+    fourthRecord = [name, score]
+
+    file1 = open('highscores.txt', 'w')
+
+    if int(fourthRecord[1]) > int(firstRecord[1]):
+        file1.write(str(fourthRecord[0]) + "#" + str(fourthRecord[1]) + "\n")
+        file1.write(str(firstRecord[0]) + "#" + str(firstRecord[1]))
+        file1.write(str(secondRecord[0]) + "#" + str(secondRecord[1]))
+    elif int(fourthRecord[1]) > int(secondRecord[1]):
+        file1.write(str(firstRecord[0]) + "#" + str(firstRecord[1]))
+        file1.write(str(fourthRecord[0]) + "#" + str(fourthRecord[1]) + "\n")
+        file1.write(str(secondRecord[0]) + "#" + str(secondRecord[1]))
+    elif int(fourthRecord[1]) > int(thirdRecord[1]):
+        file1.write(str(firstRecord[0]) + "#" + str(firstRecord[1]))
+        file1.write(str(secondRecord[0]) + "#" + str(secondRecord[1]))
+        file1.write(str(fourthRecord[0]) + "#" + str(fourthRecord[1]) + "\n")
+    else:
+        file1.write(str(firstRecord[0]) + "#" + str(firstRecord[1]))
+        file1.write(str(secondRecord[0]) + "#" + str(secondRecord[1]))
+        file1.write(str(thirdRecord[0]) + "#" + str(thirdRecord[1]) + "\n")
+
+    file1.close()
+
+
 snake = Snake(xstartPoint, ystartPoint)
 apple = Apple()
 appleExists = False
 
 run = True
+test = True
 while run:
     keys = pygame.key.get_pressed()
 
@@ -204,5 +295,7 @@ while run:
         update(win, snake)
 
     pygame.time.delay(300)
+
+updateHighscoreList("Lenny", snake.score)
 
 pygame.quit()
