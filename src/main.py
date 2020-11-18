@@ -247,21 +247,56 @@ def updateHighscoreList(name, score):
     elif int(fourthRecord[1]) > int(thirdRecord[1]):
         file1.write(str(firstRecord[0]) + "#" + str(firstRecord[1]))
         file1.write(str(secondRecord[0]) + "#" + str(secondRecord[1]))
-        file1.write(str(fourthRecord[0]) + "#" + str(fourthRecord[1]) + "\n")
+        file1.write(str(fourthRecord[0]) + "#" + str(fourthRecord[1]))
     else:
         file1.write(str(firstRecord[0]) + "#" + str(firstRecord[1]))
         file1.write(str(secondRecord[0]) + "#" + str(secondRecord[1]))
-        file1.write(str(thirdRecord[0]) + "#" + str(thirdRecord[1]) + "\n")
+        file1.write(str(thirdRecord[0]) + "#" + str(thirdRecord[1]))
 
     file1.close()
+
+
+def nameInput():
+    win.fill((0, 0, 155))
+
+    input_box = pygame.Rect(100, 100, 140, 32)
+
+    name = font.render("Enter your name", 1, (255, 255, 255))
+
+    win.blit(name, (100, 50))
+    pygame.draw.rect(win, (255, 255, 255), input_box, 2)
+
+    pygame.display.update()
+
+    run = True
+    text = ''
+    while run:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return
+            if event.type == pygame.KEYDOWN:
+                text += event.unicode
+
+        pressed = pygame.key.get_pressed()
+        if pressed[pygame.K_SPACE]:
+            run = False
+
+        txt_surface = font.render(text, True, (255, 255, 255))
+        win.blit(txt_surface, (110, 100))
+
+        pygame.display.flip()
+        pygame.time.delay(100)
+
+    return text
 
 
 snake = Snake(xstartPoint, ystartPoint)
 apple = Apple()
 appleExists = False
 
+name = nameInput()
+
 run = True
-test = True
 while run:
     keys = pygame.key.get_pressed()
 
@@ -296,6 +331,6 @@ while run:
 
     pygame.time.delay(300)
 
-updateHighscoreList("Lenny", snake.score)
 
+updateHighscoreList(name, snake.score)
 pygame.quit()
