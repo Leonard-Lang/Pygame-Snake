@@ -1,6 +1,5 @@
 import pygame
 
-from random import seed
 from random import randint
 
 pygame.init()
@@ -38,11 +37,11 @@ class Snake(object):
         self.currentDirection = "right"
         self.score = 0
 
-    def draw(self, win):
+    def draw(self, win, snake):
         for i in range(snake.length):
             pygame.draw.rect(win, (0, 0, 150), (self.bodyx[i], self.bodyy[i], boxWidth, boxHeight))
 
-    def move(self, keys):
+    def move(self, keys, snake):
         if keys[pygame.K_LEFT]:
             snake.newDirection = "left"
         if keys[pygame.K_RIGHT]:
@@ -78,7 +77,7 @@ class Snake(object):
             snake.bodyy[0] += boxHeight
 
     # Check if snakes path is blocked
-    def isBlocked(self):
+    def isBlocked(self, snake):
         # Check if snake is in the gamefield
         if snake.bodyx[0] < 0 or snake.bodyx[0] >= windowSizeX or snake.bodyy[0] < 0 + scoreboardSize or snake.bodyy[0] >= windowSizeY + scoreboardSize:
             return False
@@ -114,10 +113,10 @@ class Apple(object):
             pygame.draw.rect(win, (255, 0, 0), (self.x, self.y, boxWidth, boxHeight))
 
 
-def update(win, snake):
+def update(win, snake, apple):
     win.fill((0, 150, 0))
 
-    snake.draw(win)
+    snake.draw(win, snake)
     apple.draw(win)
 
     for i in range(numberOfColumns):
@@ -199,12 +198,6 @@ def showHighscoreList():
     thirdRecord = lines[2].split('#')
 
     file1.close()
-
-    file1 = open('highscores.txt', 'r')
-    lines2 = file1.readlines()
-    file1.close()
-
-    print(lines2)
 
     win.fill((0, 0, 155))
 
@@ -290,47 +283,101 @@ def nameInput():
     return text
 
 
-snake = Snake(xstartPoint, ystartPoint)
-apple = Apple()
-appleExists = False
+def gameOverScreen(win):
+    win.fill((0, 0, 155))
 
-name = nameInput()
+    selectionColor = (255, 150, 150)
+    selectionOption = 'highscore'
 
-run = True
-while run:
-    keys = pygame.key.get_pressed()
+    gameOver = font.render("Game Over", 1, (255, 255, 255))
+    highscore = font.render("Highscore", 1, selectionColor)
+    retry = font.render("Retry", 1, (255, 255, 255))
 
-    snake.move(keys)
+    run = True
+    while run:
 
-    run = snake.isBlocked()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return ''
 
-    if not appleExists:
-        apple.exists = True
-        appleExists = True
-        apple.spawn(snake)
-
-    if snake.bodyx[0] == apple.x and snake.bodyy[0] == apple.y:
-        appleExists = False
-        apple.exists = False
-        snake.bodyx.append(apple.x)
-        snake.bodyy.append(apple.y)
-        snake.length += 1
-        snake.score += 100
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+        pressed = pygame.key.get_pressed()
+        if pressed[pygame.K_ESCAPE]:
+            run = False
+        if pressed[pygame.K_DOWN]:
+            highscore = font.render("Highscore", 1, (255, 255, 255))
+            retry = font.render("Retry", 1, selectionColor)
+            selectionOption = 'retry'
+        if pressed[pygame.K_UP]:
+            highscore = font.render("Highscore", 1, selectionColor)
+            retry = font.render("Retry", 1, (255, 255, 255))
+            selectionOption = 'highscore'
+        if pressed[pygame.K_SPACE]:
             run = False
 
-    if keys[pygame.K_ESCAPE]:
-        if not mainMenu(win):
-            run = False
+        win.fill((0, 0, 155))
+        win.blit(gameOver, (100, 50))
+        win.blit(highscore, (100, 100))
+        win.blit(retry, (100, 150))
 
-    if run:
-        snake.score += 1
-        update(win, snake)
+        pygame.display.update()
+        pygame.time.delay(100)
 
-    pygame.time.delay(300)
+    return selectionOption
+
+def main():
+    snake = Snake(xstartPoint, ystartPoint)
+    apple = Apple()
+    appleExists = False
+
+    name = nameInput()
+
+    run = True
+
+    while run:
+        keys = pygame.key.get_pressed()
+
+        snake.move(keys, snake)
+
+        run = snake.isBlocked(snake)
+
+        if not appleExists:
+            apple.exists = True
+            appleExists = True
+            apple.spawn(snake)
+
+        if snake.bodyx[0] == apple.x and snake.bodyy[0] == apple.y:
+            appleExists = False
+            apple.exists = False
+            snake.bodyx.append(apple.x)
+            snake.bodyy.append(apple.y)
+            snake.length += 1
+            snake.score += 100
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+
+        if keys[pygame.K_ESCAPE]:
+            if not mainMenu(win):
+                run = False
+
+        if run:
+            snake.score += 1
+            update(win, snake, apple)
+
+        pygame.time.delay(300)
+
+    updateHighscoreList(name, snake.score)
+
+    decision = gameOverScreen(win)
+    if decision == 'highscore':
+        showHighscoreList()
+        gameOverScreen(win)
+    elif decision == 'retry':
+        main()
+
+    pygame.quit()
 
 
-updateHighscoreList(name, snake.score)
-pygame.quit()
+if __name__ == "__main__":
+    main()
