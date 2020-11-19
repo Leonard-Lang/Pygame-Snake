@@ -1,5 +1,6 @@
 import pygame
 
+from operator import itemgetter, attrgetter
 from random import randint
 
 pygame.init()
@@ -37,7 +38,7 @@ class Snake(object):
         self.currentDirection = "right"
         self.score = 0
 
-    def draw(self, win, snake):
+    def draw(self, snake):
         for i in range(snake.length):
             pygame.draw.rect(win, (0, 0, 150), (self.bodyx[i], self.bodyy[i], boxWidth, boxHeight))
 
@@ -64,8 +65,8 @@ class Snake(object):
             snake.currentDirection = snake.newDirection
 
         for i in range(snake.length - 1, 0, -1):
-            snake.bodyx[i] = snake.bodyx[i-1]
-            snake.bodyy[i] = snake.bodyy[i-1]
+            snake.bodyx[i] = snake.bodyx[i - 1]
+            snake.bodyy[i] = snake.bodyy[i - 1]
 
         if snake.currentDirection == "left":
             snake.bodyx[0] -= boxWidth
@@ -79,7 +80,8 @@ class Snake(object):
     # Check if snakes path is blocked
     def isBlocked(self, snake):
         # Check if snake is in the gamefield
-        if snake.bodyx[0] < 0 or snake.bodyx[0] >= windowSizeX or snake.bodyy[0] < 0 + scoreboardSize or snake.bodyy[0] >= windowSizeY + scoreboardSize:
+        if snake.bodyx[0] < 0 or snake.bodyx[0] >= windowSizeX or snake.bodyy[0] < 0 + scoreboardSize or snake.bodyy[
+            0] >= windowSizeY + scoreboardSize:
             return False
 
         # Check if snake eats itself
@@ -108,16 +110,16 @@ class Apple(object):
                 if snake.bodyx[i] == self.x and snake.bodyy[i] == self.y:
                     possible = False
 
-    def draw(self, win):
+    def draw(self):
         if self.exists:
             pygame.draw.rect(win, (255, 0, 0), (self.x, self.y, boxWidth, boxHeight))
 
 
-def update(win, snake, apple):
+def update(snake, apple):
     win.fill((0, 150, 0))
 
-    snake.draw(win, snake)
-    apple.draw(win)
+    snake.draw(snake)
+    apple.draw()
 
     for i in range(numberOfColumns):
         pygame.draw.rect(win, (255, 255, 255), (boxWidth * i, scoreboardSize, 1, windowSizeX))
@@ -131,7 +133,7 @@ def update(win, snake, apple):
     pygame.display.update()
 
 
-def mainMenu(win):
+def mainMenu():
     run = True
     selectedOption = "Play"
     selectionColor = (255, 150, 150)
@@ -187,17 +189,21 @@ def mainMenu(win):
 
 
 def showHighscoreList():
-
     run = True
 
-    file1 = open('highscores.txt', 'r')
-    lines = file1.readlines()
+    try:
+        file = open('highscores.txt', 'r')
+    except:
+        print("File does not exists")
+        return
+
+    lines = file.readlines()
 
     firstRecord = lines[0].split('#')
     secondRecord = lines[1].split('#')
     thirdRecord = lines[2].split('#')
 
-    file1.close()
+    file.close()
 
     win.fill((0, 0, 155))
 
@@ -218,35 +224,34 @@ def showHighscoreList():
 
 
 def updateHighscoreList(name, score):
-    file1 = open('highscores.txt', 'r')
-    lines = file1.readlines()
-    file1.close()
+    try:
+        file = open('highscores.txt', 'r')
+    except:
+        print("File does not exists")
 
-    firstRecord = lines[0].split('#')
-    secondRecord = lines[1].split('#')
-    thirdRecord = lines[2].split('#')
-    fourthRecord = [name, score]
+    lines = file.readlines()
+    file.close()
 
-    file1 = open('highscores.txt', 'w')
+    sepLines = list(list())
 
-    if int(fourthRecord[1]) > int(firstRecord[1]):
-        file1.write(str(fourthRecord[0]) + "#" + str(fourthRecord[1]) + "\n")
-        file1.write(str(firstRecord[0]) + "#" + str(firstRecord[1]))
-        file1.write(str(secondRecord[0]) + "#" + str(secondRecord[1]))
-    elif int(fourthRecord[1]) > int(secondRecord[1]):
-        file1.write(str(firstRecord[0]) + "#" + str(firstRecord[1]))
-        file1.write(str(fourthRecord[0]) + "#" + str(fourthRecord[1]) + "\n")
-        file1.write(str(secondRecord[0]) + "#" + str(secondRecord[1]))
-    elif int(fourthRecord[1]) > int(thirdRecord[1]):
-        file1.write(str(firstRecord[0]) + "#" + str(firstRecord[1]))
-        file1.write(str(secondRecord[0]) + "#" + str(secondRecord[1]))
-        file1.write(str(fourthRecord[0]) + "#" + str(fourthRecord[1]))
-    else:
-        file1.write(str(firstRecord[0]) + "#" + str(firstRecord[1]))
-        file1.write(str(secondRecord[0]) + "#" + str(secondRecord[1]))
-        file1.write(str(thirdRecord[0]) + "#" + str(thirdRecord[1]))
+    sepLines.append([name, score])
 
-    file1.close()
+    for line in lines:
+        record = line.split('#')
+        record[1] = int(record[1])
+        sepLines.append(record)
+
+    sortedRecords = sorted(sepLines, key=itemgetter(1), reverse=True)
+
+    try:
+        file = open('highscores.txt', 'w')
+    except:
+        print("File does not exists")
+
+    for i in range(3):
+        file.write(sortedRecords[i][0] + '#' + str(sortedRecords[i][1]) + '\n')
+
+    file.close()
 
 
 def nameInput():
@@ -283,7 +288,7 @@ def nameInput():
     return text
 
 
-def gameOverScreen(win):
+def gameOverScreen():
     win.fill((0, 0, 155))
 
     selectionColor = (255, 150, 150)
@@ -324,6 +329,7 @@ def gameOverScreen(win):
 
     return selectionOption
 
+
 def main():
     snake = Snake(xstartPoint, ystartPoint)
     apple = Apple()
@@ -358,21 +364,21 @@ def main():
                 run = False
 
         if keys[pygame.K_ESCAPE]:
-            if not mainMenu(win):
+            if not mainMenu():
                 run = False
 
         if run:
             snake.score += 1
-            update(win, snake, apple)
+            update(snake, apple)
 
-        pygame.time.delay(300)
+        pygame.time.delay(250)
 
     updateHighscoreList(name, snake.score)
 
-    decision = gameOverScreen(win)
+    decision = gameOverScreen()
     if decision == 'highscore':
         showHighscoreList()
-        gameOverScreen(win)
+        gameOverScreen()
     elif decision == 'retry':
         main()
 
