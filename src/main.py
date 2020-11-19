@@ -189,8 +189,6 @@ def mainMenu():
 
 
 def showHighscoreList():
-    run = True
-
     try:
         file = open('highscores.txt', 'r')
     except:
@@ -198,25 +196,18 @@ def showHighscoreList():
         return
 
     lines = file.readlines()
-
-    firstRecord = lines[0].split('#')
-    secondRecord = lines[1].split('#')
-    thirdRecord = lines[2].split('#')
-
     file.close()
 
     win.fill((0, 0, 155))
-
-    firstPlaceText = font.render("1. " + firstRecord[0] + " " + firstRecord[1][:-1] + "p", 1, (255, 255, 255))
-    secondPlaceText = font.render("2. " + secondRecord[0] + " " + secondRecord[1][:-1] + "p", 1, (255, 255, 255))
-    thirdPlaceText = font.render("3. " + thirdRecord[0] + " " + thirdRecord[1] + "p", 1, (255, 255, 255))
-
-    win.blit(firstPlaceText, (round(windowSizeX / 2), 10))
-    win.blit(secondPlaceText, (round(windowSizeX / 2), 90))
-    win.blit(thirdPlaceText, (round(windowSizeX / 2), 170))
+    for i in range(len(lines)):
+        record = lines[i].split('#')
+        record[1] = int(record[1])
+        recordText = font.render(str(i + 1) + ". " + record[0] + " " + str(record[1]) + "p", 1, (255, 255, 255))
+        win.blit(recordText, (round(windowSizeX / 2), (i * 100) + 10))
 
     pygame.display.update()
 
+    run = True
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
