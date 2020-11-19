@@ -239,7 +239,11 @@ def updateHighscoreList(name, score):
     except:
         print("File does not exists")
 
-    for i in range(len(sepLines)):
+    length = len(sepLines)
+    if len(sepLines) > 3:
+        length = 3
+
+    for i in range(length):
         file.write(sortedRecords[i][0] + '#' + str(sortedRecords[i][1]) + '\n')
 
     file.close()
