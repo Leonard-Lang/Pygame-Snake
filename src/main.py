@@ -211,7 +211,12 @@ def showHighscoreList():
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                run = False
+                pygame.quit()
+
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_ESCAPE]:
+            run = False
 
 
 def updateHighscoreList(name, score):
