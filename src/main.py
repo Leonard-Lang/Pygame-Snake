@@ -298,7 +298,7 @@ def gameOverScreen():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return ''
+                return 'quit'
 
         pressed = pygame.key.get_pressed()
         if pressed[pygame.K_ESCAPE]:
@@ -311,6 +311,8 @@ def gameOverScreen():
             highscore = font.render("Highscore", 1, selectionColor)
             retry = font.render("Retry", 1, (255, 255, 255))
             selectionOption = 'highscore'
+        if pressed[pygame.K_ESCAPE]:
+            selectionOption = 'quit'
         if pressed[pygame.K_SPACE]:
             run = False
 
@@ -322,7 +324,6 @@ def gameOverScreen():
         pygame.display.update()
         pygame.time.delay(100)
 
-    print(selectionOption)
     return selectionOption
 
 
@@ -372,12 +373,15 @@ def main(name):
 
     updateHighscoreList(name, snake.score)
 
-    decision = gameOverScreen()
-    if decision == 'highscore':
-        showHighscoreList()
-        gameOverScreen()
-    elif decision == 'retry':
-        main(name)
+    run = True
+    while run:
+        decision = gameOverScreen()
+        if decision == 'highscore':
+            showHighscoreList()
+        if decision == 'retry':
+            main(name)
+        if decision == 'quit':
+            break
 
     pygame.quit()
 
