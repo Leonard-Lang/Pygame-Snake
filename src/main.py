@@ -239,7 +239,7 @@ def updateHighscoreList(name, score):
     except:
         print("File does not exists")
 
-    for i in range(3):
+    for i in range(len(sepLines)):
         file.write(sortedRecords[i][0] + '#' + str(sortedRecords[i][1]) + '\n')
 
     file.close()
@@ -318,15 +318,17 @@ def gameOverScreen():
         pygame.display.update()
         pygame.time.delay(100)
 
+    print(selectionOption)
     return selectionOption
 
 
-def main():
+def main(name):
     snake = Snake(xstartPoint, ystartPoint)
     apple = Apple()
     appleExists = False
 
-    name = nameInput()
+    if name == '':
+        name = nameInput()
 
     run = True
 
@@ -371,10 +373,11 @@ def main():
         showHighscoreList()
         gameOverScreen()
     elif decision == 'retry':
-        main()
+        main(name)
 
     pygame.quit()
 
 
 if __name__ == "__main__":
-    main()
+    name = ''
+    main(name)
