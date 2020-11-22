@@ -42,51 +42,50 @@ class Snake(object):
         for i in range(snake.length):
             pygame.draw.rect(win, (0, 0, 150), (self.bodyx[i], self.bodyy[i], boxWidth, boxHeight))
 
-    def move(self, keys, snake):
+    def move(self, keys):
         if keys[pygame.K_LEFT]:
-            snake.newDirection = "left"
+            self.newDirection = "left"
         if keys[pygame.K_RIGHT]:
-            snake.newDirection = "right"
+            self.newDirection = "right"
         if keys[pygame.K_UP]:
-            snake.newDirection = "up"
+            self.newDirection = "up"
         if keys[pygame.K_DOWN]:
-            snake.newDirection = "down"
+            self.newDirection = "down"
 
-        if snake.newDirection == "left" and snake.currentDirection != "right":
-            snake.currentDirection = snake.newDirection
+        if self.newDirection == "left" and self.currentDirection != "right":
+            self.currentDirection = self.newDirection
 
-        if snake.newDirection == "right" and snake.currentDirection != "left":
-            snake.currentDirection = snake.newDirection
+        if self.newDirection == "right" and self.currentDirection != "left":
+            self.currentDirection = self.newDirection
 
-        if snake.newDirection == "up" and snake.currentDirection != "down":
-            snake.currentDirection = snake.newDirection
+        if self.newDirection == "up" and self.currentDirection != "down":
+            self.currentDirection = self.newDirection
 
-        if snake.newDirection == "down" and snake.currentDirection != "up":
-            snake.currentDirection = snake.newDirection
+        if self.newDirection == "down" and self.currentDirection != "up":
+            self.currentDirection = self.newDirection
 
-        for i in range(snake.length - 1, 0, -1):
-            snake.bodyx[i] = snake.bodyx[i - 1]
-            snake.bodyy[i] = snake.bodyy[i - 1]
+        for i in range(self.length - 1, 0, -1):
+            self.bodyx[i] = self.bodyx[i - 1]
+            self.bodyy[i] = self.bodyy[i - 1]
 
-        if snake.currentDirection == "left":
-            snake.bodyx[0] -= boxWidth
-        elif snake.currentDirection == "right":
-            snake.bodyx[0] += boxWidth
-        elif snake.currentDirection == "up":
-            snake.bodyy[0] -= boxHeight
-        elif snake.currentDirection == "down":
-            snake.bodyy[0] += boxHeight
+        if self.currentDirection == "left":
+            self.bodyx[0] -= boxWidth
+        elif self.currentDirection == "right":
+            self.bodyx[0] += boxWidth
+        elif self.currentDirection == "up":
+            self.bodyy[0] -= boxHeight
+        elif self.currentDirection == "down":
+            self.bodyy[0] += boxHeight
 
     # Check if snakes path is blocked
-    def isBlocked(self, snake):
+    def isBlocked(self):
         # Check if snake is in the gamefield
-        if snake.bodyx[0] < 0 or snake.bodyx[0] >= windowSizeX or snake.bodyy[0] < 0 + scoreboardSize or snake.bodyy[
-            0] >= windowSizeY + scoreboardSize:
+        if self.bodyx[0] < 0 or self.bodyx[0] >= windowSizeX or self.bodyy[0] < 0 + scoreboardSize or self.bodyy[0] >= windowSizeY + scoreboardSize:
             return False
 
         # Check if snake eats itself
-        for i in range(1, snake.length):
-            if snake.bodyx[0] == snake.bodyx[i] and snake.bodyy[0] == snake.bodyy[i]:
+        for i in range(1, self.length):
+            if self.bodyx[0] == self.bodyx[i] and self.bodyy[0] == self.bodyy[i]:
                 return False
 
         return True
@@ -345,9 +344,13 @@ def main(name):
     while run:
         keys = pygame.key.get_pressed()
 
-        snake.move(keys, snake)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return 'quit'
 
-        run = snake.isBlocked(snake)
+        snake.move(keys)
+
+        run = snake.isBlocked()
 
         if not appleExists:
             apple.exists = True
