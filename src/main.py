@@ -1,6 +1,6 @@
 import pygame
 
-from operator import itemgetter, attrgetter
+from operator import itemgetter
 from random import randint
 
 pygame.init()
