@@ -95,7 +95,6 @@ class Apple(object):
     def __init__(self):
         self.x = 0
         self.y = 0
-        self.exists = True
 
     def spawn(self, snake):
 
@@ -109,16 +108,16 @@ class Apple(object):
                 if snake.bodyx[i] == self.x and snake.bodyy[i] == self.y:
                     possible = False
 
-    def draw(self):
-        if self.exists:
+    def draw(self, appleExists):
+        if appleExists:
             pygame.draw.rect(win, (255, 0, 0), (self.x, self.y, boxWidth, boxHeight))
 
 
-def update(snake, apple):
+def update(snake, apple, appleExists):
     win.fill((0, 150, 0))
 
     snake.draw(snake)
-    apple.draw()
+    apple.draw(appleExists)
 
     for i in range(numberOfColumns):
         pygame.draw.rect(win, (255, 255, 255), (boxWidth * i, scoreboardSize, 1, windowSizeX))
@@ -353,13 +352,11 @@ def main(name):
         run = snake.isBlocked()
 
         if not appleExists:
-            apple.exists = True
             appleExists = True
             apple.spawn(snake)
 
         if snake.bodyx[0] == apple.x and snake.bodyy[0] == apple.y:
             appleExists = False
-            apple.exists = False
             snake.bodyx.append(apple.x)
             snake.bodyy.append(apple.y)
             snake.length += 1
@@ -375,7 +372,7 @@ def main(name):
 
         if run:
             snake.score += 1
-            update(snake, apple)
+            update(snake, apple, appleExists)
 
         pygame.time.delay(250)
 
