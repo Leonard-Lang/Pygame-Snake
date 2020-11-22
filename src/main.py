@@ -42,6 +42,7 @@ class Snake(object):
         for i in range(snake.length):
             pygame.draw.rect(win, (0, 0, 150), (self.bodyx[i], self.bodyy[i], boxWidth, boxHeight))
 
+    # Move the snake in the certain direction
     def move(self, keys):
         if keys[pygame.K_LEFT]:
             self.newDirection = "left"
